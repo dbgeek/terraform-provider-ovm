@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
+	"github.com/mitchellh/mapstructure"
 )
 
 func Provider() terraform.ResourceProvider {
@@ -28,12 +29,11 @@ func Provider() terraform.ResourceProvider {
 		ResourcesMap: map[string]*schema.Resource{
 			"ovm_vm": resourceOvmVm(),
 		},
-
 		ConfigureFunc: providerConfigure,
 	}
 }
 
-func ProviderConfigure(d *schema.ResourceData) (interface{}, error) {
+func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	var config Config
 	configRaw := d.Get("").(map[string]interface{})
 	if err := mapstructure.Decode(configRaw, &config); err != nil {
