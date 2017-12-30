@@ -104,12 +104,12 @@ func checkForResource(d *schema.ResourceData) (ovmHelper.Vm, error) {
 
 	// required
 	if v, ok := d.GetOk("repositoryid"); ok {
-		vmParams.RepositoryId = ovmHelper.Id{Value: v.(string),
+		vmParams.RepositoryId = &ovmHelper.Id{Value: v.(string),
 			Type: "com.oracle.ovm.mgr.ws.model.Repository"}
 	}
 
 	if v, ok := d.GetOk("serverpoolid"); ok {
-		vmParams.ServerPoolId = ovmHelper.Id{Value: v.(string),
+		vmParams.ServerPoolId = &ovmHelper.Id{Value: v.(string),
 			Type: "com.oracle.ovm.mgr.ws.model.ServerPool"}
 	}
 
@@ -144,9 +144,6 @@ func resourceOvmVmCreate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	//dJson, _ := json.Marshal(vm)
-	//log.Printf("[DEBUG] print result: %#v", string(dJson))
-	//	log.Printf("[DEBUG] Check create configuration: %#v, %#v", d.Get("name"), d.Get("hostname"))
 
 	v, err := client.Vms.CreateVm(vm)
 	if err != nil {
