@@ -2,6 +2,7 @@ package ovm
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/dbgeek/go-ovm-helper/ovmHelper"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -36,11 +37,9 @@ func resourceOvmVm() *schema.Resource {
 		Read:   resourceOvmVmRead,
 		Delete: resourceOvmVmDelete,
 		Update: resourceOvmVmUpdate,
-		/*
-			Delete: resourceOvmCheckDelete,
-			Importer: &schema.ResourceImporter{
-				State: resourceOvmCheckImporter,
-			},*/
+		/*			Importer: &schema.ResourceImporter{
+					State: resourceOvmCheckImporter,
+				},*/
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
@@ -178,13 +177,17 @@ func resourceOvmVmRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceOvmVmDelete(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*ovmHelper.Client)
+	log.Printf("[INFO] Deleting Vm: %v", d.Id())
+	_, err := client.Vms.DeleteVm(d.Id())
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func resourceOvmVmUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*ovmHelper.Client)
-	//id := d.Id()
-
 	vm, err := checkForResource(d)
 	if err != nil {
 		return err
