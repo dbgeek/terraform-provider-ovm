@@ -1,6 +1,8 @@
 package ovm
 
 import (
+	"fmt"
+
 	"github.com/dbgeek/go-ovm-helper/ovmHelper"
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -32,19 +34,22 @@ func resourceOvmVm() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceOvmVmCreate,
 		Read:   resourceOvmVmRead,
-		Delete: resourceOvmVmDelete, /*
-			Update: resourceOvmCheckUpdate,
+		Delete: resourceOvmVmDelete,
+		Update: resourceOvmVmUpdate,
+		/*
 			Delete: resourceOvmCheckDelete,
 			Importer: &schema.ResourceImporter{
 				State: resourceOvmCheckImporter,
 			},*/
 
 		Schema: map[string]*schema.Schema{
-			/*			"Id": &schema.Schema{
-						Type:     schema.TypeString,
-						Required: true,
-						ForceNew: false,
-					},*/
+			"name": &schema.Schema{
+				Type:     schema.TypeString,
+				Required: false,
+				ForceNew: false,
+				Optional: true,
+				Computed: true,
+			},
 			"repositoryid": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
@@ -57,23 +62,38 @@ func resourceOvmVm() *schema.Resource {
 			},
 			"cpucount": &schema.Schema{
 				Type:     schema.TypeInt,
-				Required: true,
-				ForceNew: true,
+				Optional: true,
+				Computed: true,
+				Required: false,
+				ForceNew: false,
 			},
-			/*			"hugepagesenabled": &schema.Schema{
-									Type:     schema.TypeBool,
-									Required: false,
-									ForceNew: false,
-								},
-						"memory": &schema.Schema{
-							Type:     schema.TypeInt,
-							Required: false,
-							ForceNew: true,
-						},*/
+			"cpucountlimit": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+				Required: false,
+				ForceNew: false,
+			},
+			"hugepagesenabled": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+				Required: false,
+				ForceNew: false,
+			},
+			"memory": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+				Required: false,
+				ForceNew: false,
+			},
 			"vmdomaintype": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Optional: true,
+				Computed: true,
+				Required: false,
+				ForceNew: false,
 			},
 		},
 	}
@@ -102,6 +122,18 @@ func checkForResource(d *schema.ResourceData) (ovmHelper.Vm, error) {
 	if v, ok := d.GetOk("cpucount"); ok {
 		vmParams.CpuCount = v.(int)
 	}
+	if v, ok := d.GetOk("cpucountlimit"); ok {
+		vmParams.CpuCountLimit = v.(int)
+	}
+	if v, ok := d.GetOk("name"); ok {
+		vmParams.Name = v.(string)
+	}
+	if v, ok := d.GetOk("hugepagesenabled"); ok {
+		vmParams.HugePagesEnabled = v.(bool)
+	}
+	if v, ok := d.GetOk("memory"); ok {
+		vmParams.Memory = v.(int)
+	}
 
 	return *vmParams, nil
 }
@@ -113,7 +145,8 @@ func resourceOvmVmCreate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-
+	//dJson, _ := json.Marshal(vm)
+	//log.Printf("[DEBUG] print result: %#v", string(dJson))
 	//	log.Printf("[DEBUG] Check create configuration: %#v, %#v", d.Get("name"), d.Get("hostname"))
 
 	v, err := client.Vms.CreateVm(vm)
@@ -127,9 +160,38 @@ func resourceOvmVmCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceOvmVmRead(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*ovmHelper.Client)
+
+	vm, _ := client.Vms.Read(d.Id())
+
+	if vm == nil {
+		d.SetId("")
+		fmt.Println("Not find any vm")
+		return nil
+	}
+
+	d.Set("repositoryid", vm.RepositoryId)
+	d.Set("serverpoolid", vm.ServerPoolId)
+	d.Set("vmdomaintype", vm.VmDomainType)
+	d.Set("cpucount", vm.CpuCount)
 	return nil
 }
 
 func resourceOvmVmDelete(d *schema.ResourceData, meta interface{}) error {
+	return nil
+}
+
+func resourceOvmVmUpdate(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*ovmHelper.Client)
+	//id := d.Id()
+
+	vm, err := checkForResource(d)
+	if err != nil {
+		return err
+	}
+	_, err = client.Vms.UpdateVm(d.Id(), vm)
+	if err != nil {
+		return err
+	}
 	return nil
 }
