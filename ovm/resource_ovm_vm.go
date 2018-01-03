@@ -176,7 +176,7 @@ func resourceOvmVmRead(d *schema.ResourceData, meta interface{}) error {
 func resourceOvmVmDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*ovmHelper.Client)
 	log.Printf("[INFO] Deleting Vm: %v", d.Id())
-	_, err := client.Vms.DeleteVm(d.Id())
+	err := client.Vms.DeleteVm(d.Id())
 	if err != nil {
 		return err
 	}
