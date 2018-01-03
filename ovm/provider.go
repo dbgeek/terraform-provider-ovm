@@ -27,8 +27,9 @@ func Provider() terraform.ResourceProvider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"ovm_vm": resourceOvmVm(),
-			"ovm_vd": resourceOvmVd(),
+			"ovm_vm":  resourceOvmVm(),
+			"ovm_vd":  resourceOvmVd(),
+			"ovm_vdm": resourceOvmVdm(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
