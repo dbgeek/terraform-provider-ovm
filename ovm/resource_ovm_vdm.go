@@ -65,6 +65,7 @@ func checkForResourceVdm(d *schema.ResourceData) (ovmHelper.Vdm, error) {
 	}
 	if v, ok := d.GetOk("slot"); ok {
 		vdmParams.DiskTarget = v.(int)
+		log.Printf("[DEBUG] Slot: %v DiskTarget: %v", v.(int), vdmParams.DiskTarget)
 	}
 	//optional
 	if v, ok := d.GetOk("description"); ok {
@@ -102,7 +103,7 @@ func resourceOvmVdmCreate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("[INFO] Creating vdm for vmid: %v, vdid: %v", vdm.VmId.Value, vdm.VirtualDiskId.Value)
+	log.Printf("[INFO] Creating vdm for vmid: %v, vdid: %v, slot: %v", vdm.VmId.Value, vdm.VirtualDiskId.Value, vdm.DiskTarget)
 
 	v, err := client.Vdms.Create(vdm)
 	if err != nil {
