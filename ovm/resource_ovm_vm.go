@@ -189,7 +189,7 @@ func resourceOvmVmUpdate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	_, err = client.Vms.UpdateVm(d.Id(), vm)
+	err = client.Vms.UpdateVm(d.Id(), vm)
 	if err != nil {
 		return err
 	}
