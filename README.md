@@ -2,6 +2,8 @@
 
 ### Dependencies ###
 
+This project is a [terraform](http://www.terraform.io/) provider for [OVM](https://www.oracle.com/virtualization/oracle-vm-server-for-x86/index.html)
+
 You should have a working Go environment setup.  If not check out the Go [getting started](http://golang.org/doc/install) guide.
 
 This relies on the [go-pingdom](https://github.com/dbgeek/go-ovm-helper) library. To
