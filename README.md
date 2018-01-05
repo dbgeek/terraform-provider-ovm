@@ -12,8 +12,8 @@ resource "ovm_vm" "vm1" {
   serverpoolid  = "${var.serverpoolid}"
   vmdomaintype  = "XEN_HVM"
   cpucount      = 2
-	cpucountlimit = 2
-  memory        = 150
+  cpucountlimit = 2
+  memory        = 512 //MB
 }
 
 resource "ovm_vd" "vm1_virtualdisk" {
