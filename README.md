@@ -26,6 +26,7 @@ providers {
 ## Usage ##
 
 **Basic vm provision**
+
 Create one vm and create two virtual disks and mapp them to the vm
 ```
 resource "ovm_vm" "vm1" {
