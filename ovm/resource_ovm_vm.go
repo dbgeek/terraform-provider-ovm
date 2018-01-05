@@ -94,6 +94,20 @@ func resourceOvmVm() *schema.Resource {
 				Required: false,
 				ForceNew: false,
 			},
+			"clonevmid": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Required: false,
+				ForceNew: true,
+			},
+			"vmclonedefinitionid": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Required: false,
+				ForceNew: true,
+			},
 		},
 	}
 }
@@ -138,6 +152,8 @@ func checkForResource(d *schema.ResourceData) (ovmHelper.Vm, error) {
 }
 
 func resourceOvmVmCreate(d *schema.ResourceData, meta interface{}) error {
+	var v *string
+
 	client := meta.(*ovmHelper.Client)
 
 	vm, err := checkForResource(d)
@@ -145,9 +161,16 @@ func resourceOvmVmCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	v, err := client.Vms.CreateVm(vm)
-	if err != nil {
-		return err
+	if d.Get("clonevmid").(string) == "" {
+		v, err = client.Vms.CreateVm(vm)
+		if err != nil {
+			return err
+		}
+	} else {
+		v, err = client.Vms.CloneVm(d.Get("clonevmid").(string), d.Get("vmclonedefinitionid").(string), vm)
+		if err != nil {
+			return err
+		}
 	}
 
 	d.SetId(*v)
