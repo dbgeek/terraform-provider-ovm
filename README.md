@@ -66,4 +66,59 @@ resource "ovm_vdm" "vm1_vdm" {
 }
 ```
 
+**Create VM from a Template**
 
+```
+//Creating VmCloneCustomizer
+resource "ovm_vmcd" "oe7_tmpl_cst" {
+  vmid        = "0004fb000014000014feb8708c34fc0f"
+  name        = "oe7_tmpl_cst"
+  description = "Desc oel7 cust"
+}
+
+//Defining Vm Clone Storage Mapping
+resource "ovm_vmcsm" "oel7_vmclonestoragemapping" {
+  vmdiskmappingid     = "0004fb0000130000f8e1fa844def645e"
+  vmclonedefinitionid = "${ovm_vmcd.oe7_tmpl_cst.id}"
+  repositoryid        = "0004fb00000300003a68daf22a32ebc5"
+  name                = "oel_cust_storage"
+  clonetype           = "SPARSE_COPY"
+}
+
+//Defining Vm Clone Network Mappings.
+resource "ovm_vmcnm" "oel7_vmclonenetworkmapping" {
+  networkid           = "${var.networkid}"
+  vmclonedefinitionid = "${ovm_vmcd.oe7_tmpl_cst.id}"
+  virtualnicid        = "${var.virtualnicid}"
+  name                = "oel_cust_network"
+}
+
+resource "ovm_vm" "cloneoel7" {
+  name                = "cloneoel7Vm"
+  repositoryid        = "${var.vm_repositoryid}" //Where vm.cfg should be stored
+  serverpoolid        = "${var.serverpoolid}"
+  vmdomaintype        = "XEN_HVM"
+  clonevmid           = "${var.template_vmid}"
+  vmclonedefinitionid = "${ovm_vmcd.oel7_cust.id}"
+  depends_on          = ["ovm_vmcnm.oel7_cust_vmcnm", "ovm_vmcsm.oel7_cust_vmcsm"]
+}
+
+resource "ovm_vd" "clonevmvd" {
+  count        = 2                           //nr of vritual disk to create
+  name         = "clonedvm${count.index}"
+  sparse       = true
+  shareable    = false
+  repositoryid = "${var.vd_repositoryid}"
+  size         = 104857600 //bytes
+}
+
+//Mapping the Virtual Disk to the vm
+resource "ovm_vdm" "clonevmvdm" {
+  count       = 2
+  vmid        = "${ovm_vm.cloneoel7.id}"
+  vdid        = "${element(ovm_vd.clonevmvd.*.id, count.index)}"
+  name        = "clonevmvdm${count.index +1}"
+  slot        = "${count.index + 1}"          //The template has one disk that already attached to slot 0
+  description = "Extra disk that get attached to the vm"
+}
+```
