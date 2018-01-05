@@ -27,6 +27,12 @@ providers {
 
 ## Usage ##
 
+** provider.ovm: new or changed plugin executable  **
+
+```
+export TF_SKIP_PROVIDER_VERIFY=1
+```
+
 **Basic vm provision**
 
 Create one vm and create two virtual disks and mapp them to the vm
