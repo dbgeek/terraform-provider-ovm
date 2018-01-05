@@ -27,10 +27,12 @@ func Provider() terraform.ResourceProvider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"ovm_vm":   resourceOvmVm(),
-			"ovm_vmcd": resourceOvmVmcd(),
-			"ovm_vd":   resourceOvmVd(),
-			"ovm_vdm":  resourceOvmVdm(),
+			"ovm_vm":    resourceOvmVm(),
+			"ovm_vmcd":  resourceOvmVmcd(),
+			"ovm_vd":    resourceOvmVd(),
+			"ovm_vdm":   resourceOvmVdm(),
+			"ovm_vmcnm": resourceOvmVmcnm(),
+			"ovm_vmcsm": resourceOvmVmcsm(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
