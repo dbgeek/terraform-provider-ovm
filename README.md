@@ -27,10 +27,29 @@ providers {
 
 ## Usage ##
 
-** provider.ovm: new or changed plugin executable  **
+**provider.ovm: new or changed plugin executable**
 
 ```
 export TF_SKIP_PROVIDER_VERIFY=1
+```
+
+**Configure the Provider**
+
+***Configure in TF configuration***
+
+```
+provider "ovm" {
+  user       = "${var.ovm_username}"
+  password   = "${var.ovm_password}"
+  entrypoint = "${var.ovm_endpoint}"
+}
+```
+
+***Configure in environment***
+
+Set username(`OVM_USERNAME`) and password(`OVM_PASSWORD`) and endpoint(`OVM_ENDPOINT`) in environment
+```
+provider "ovm" {}
 ```
 
 **Basic vm provision**
