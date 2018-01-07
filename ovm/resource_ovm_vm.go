@@ -8,27 +8,8 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
-type commonVmParams struct {
-	repositoryId int64
-	serverPoolId int64
-	//The following fields of the new Vm are optional:
-	bootOrder          []string
-	cpuCount           int
-	cpuCountLimit      int
-	cpuPriority        int
-	cpuUtilizationCap  int
-	highAvailability   bool
-	hugePagesEnabled   bool
-	keymapName         string
-	memory             int
-	memoryLimit        int
-	networkInstallPath string
-	osType             string
-	serverId           int64
-	vmDomainType       string
-	vmMouseType        string
-	vmRunState         string
-	vmStartPolicy      string
+type tfVmCfg struct {
+	networkId string
 }
 
 func resourceOvmVm() *schema.Resource {
@@ -108,13 +89,21 @@ func resourceOvmVm() *schema.Resource {
 				Required: false,
 				ForceNew: true,
 			},
+			"networkid": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Required: false,
+				ForceNew: true,
+			},
 		},
 	}
 }
 
-func checkForResource(d *schema.ResourceData) (ovmHelper.Vm, error) {
+func checkForResource(d *schema.ResourceData) (ovmHelper.Vm, ovmHelper.CfgVm, error) {
 
 	vmParams := &ovmHelper.Vm{}
+	tfVmCfgParams := &ovmHelper.CfgVm{}
 
 	// required
 	if v, ok := d.GetOk("repositoryid"); ok {
@@ -147,8 +136,11 @@ func checkForResource(d *schema.ResourceData) (ovmHelper.Vm, error) {
 	if v, ok := d.GetOk("memory"); ok {
 		vmParams.Memory = v.(int)
 	}
+	if v, ok := d.GetOk("networkid"); ok {
+		tfVmCfgParams.NetworkId = v.(string)
+	}
 
-	return *vmParams, nil
+	return *vmParams, *tfVmCfgParams, nil
 }
 
 func resourceOvmVmCreate(d *schema.ResourceData, meta interface{}) error {
@@ -156,13 +148,13 @@ func resourceOvmVmCreate(d *schema.ResourceData, meta interface{}) error {
 
 	client := meta.(*ovmHelper.Client)
 
-	vm, err := checkForResource(d)
+	vm, tfVmCfgParams, err := checkForResource(d)
 	if err != nil {
 		return err
 	}
 
 	if d.Get("clonevmid").(string) == "" {
-		v, err = client.Vms.CreateVm(vm)
+		v, err = client.Vms.CreateVm(vm, tfVmCfgParams)
 		if err != nil {
 			return err
 		}
@@ -208,7 +200,7 @@ func resourceOvmVmDelete(d *schema.ResourceData, meta interface{}) error {
 
 func resourceOvmVmUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*ovmHelper.Client)
-	vm, err := checkForResource(d)
+	vm, _, err := checkForResource(d)
 	if err != nil {
 		return err
 	}
