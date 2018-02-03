@@ -96,6 +96,10 @@ func resourceOvmVm() *schema.Resource {
 				Required: false,
 				ForceNew: true,
 			},
+			"sendmessages": &schema.Schema{
+				Type:     schema.TypeMap,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -140,6 +144,12 @@ func checkForResource(d *schema.ResourceData) (ovmHelper.Vm, ovmHelper.CfgVm, er
 		tfVmCfgParams.NetworkId = v.(string)
 	}
 
+	if v, ok := d.GetOk("sendmessages"); ok {
+		sendmessages, rootPassword := sendmessagesFromMap(v.(map[string]interface{}))
+		tfVmCfgParams.SendMessages = sendmessages
+		tfVmCfgParams.RootPassword = rootPassword
+	}
+
 	return *vmParams, *tfVmCfgParams, nil
 }
 
@@ -159,7 +169,7 @@ func resourceOvmVmCreate(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 	} else {
-		v, err = client.Vms.CloneVm(d.Get("clonevmid").(string), d.Get("vmclonedefinitionid").(string), vm)
+		v, err = client.Vms.CloneVm(d.Get("clonevmid").(string), d.Get("vmclonedefinitionid").(string), vm, tfVmCfgParams)
 		if err != nil {
 			return err
 		}
@@ -209,4 +219,23 @@ func resourceOvmVmUpdate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 	return nil
+}
+
+func sendmessagesFromMap(m map[string]interface{}) (*[]ovmHelper.KeyValuePair, *[]ovmHelper.KeyValuePair) {
+
+	result := make([]ovmHelper.KeyValuePair, 0, len(m))
+	password := make([]ovmHelper.KeyValuePair, 0, len(m))
+	for k, v := range m {
+		t := ovmHelper.KeyValuePair{
+			Key:   k,
+			Value: v.(string),
+		}
+		if k == "com.oracle.linux.root-password" {
+			password = append(password, t)
+		} else {
+			result = append(result, t)
+		}
+	}
+
+	return &result, &password
 }
