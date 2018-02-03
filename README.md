@@ -119,6 +119,15 @@ resource "ovm_vm" "cloneoel7" {
   vmdomaintype        = "XEN_HVM"
   clonevmid           = "${var.template_vmid}"
   vmclonedefinitionid = "${ovm_vmcd.oel7_cust.id}"
+
+  sendmessages {
+    "com.oracle.linux.network.hostname"    = "cloneoel7vm"
+    "com.oracle.linux.network.device.0"    = "eth0"
+    "com.oracle.linux.network.bootproto.0" = "dhcp"
+    "com.oracle.linux.network.onboot.0"    = "yes"
+    "com.oracle.linux.root-password"       = "Welcome!"
+  }
+ 
   depends_on          = ["ovm_vmcnm.oel7_cust_vmcnm", "ovm_vmcsm.oel7_cust_vmcsm"]
 }
 
