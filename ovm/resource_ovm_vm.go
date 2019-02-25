@@ -100,6 +100,11 @@ func resourceOvmVm() *schema.Resource {
 				Type:     schema.TypeMap,
 				Optional: true,
 			},
+			"startvm": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
 		},
 	}
 }
@@ -170,6 +175,14 @@ func resourceOvmVmCreate(d *schema.ResourceData, meta interface{}) error {
 		}
 	} else {
 		v, err = client.Vms.CloneVm(d.Get("clonevmid").(string), d.Get("vmclonedefinitionid").(string), vm, tfVmCfgParams)
+		if err != nil {
+			return err
+		}
+
+	}
+
+	if d.Get("startvm").(bool) {
+		err = client.Vms.Start(*v)
 		if err != nil {
 			return err
 		}
