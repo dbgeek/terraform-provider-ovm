@@ -1,5 +1,8 @@
 # terraform-provider-ovm #
 
+## This repo is not maintained anymore
+*I can not maintaine this repo anymore as I do not have any lab/play environment.*
+
 ### Dependencies ###
 
 This project is a [terraform](http://www.terraform.io/) provider for [OVM](https://www.oracle.com/virtualization/oracle-vm-server-for-x86/index.html)
