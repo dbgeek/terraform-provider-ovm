@@ -1,7 +1,7 @@
 # terraform-provider-ovm #
 
-## This repo is not maintained anymore
-*I can not maintaine this repo anymore as I do not have any lab/play environment.*
+# This repo is not maintained anymore
+## I can not maintaine this repo anymore as I do not have any lab/play environment
 
 ### Dependencies ###
 
